@@ -1,0 +1,5 @@
+host="localhost"
+database="sbp"
+user="postgres"
+password="vjeko98"
+port="5432"
