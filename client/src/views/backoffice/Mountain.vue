@@ -9,56 +9,87 @@
             <v-col>
                 <span class="text-h6">Vrhovi</span>
                 <span class="text-h6 grey--text" v-if="!isLoading"> ({{ mountains.vrhovi.length }})</span>
-                <div class="ml-2 d-inline">
-                    <v-btn text small class="primary--text" to="planine-dodaj-novu">Dodaj novi</v-btn>   
+                <div class="ml-2 d-inline" v-if="!addNewActivated">
+                    <v-btn text small class="primary--text"  @click="activateAddNew">Dodaj novi</v-btn>   
                 </div>
-            </v-col>
-        </v-row>
-
-        <!-- **** ZAGLAVLJE liste **** -->
-        <v-row class="hidden-sm-and-down mt-1">
-            <v-col class="text-left" cols="3">
-                Naziv
-            </v-col>
-            <v-col class="text-left" cols="6">
-                Visina
-            </v-col>
-        </v-row>
-        <!-- ************************** -->
-
-        <!-- AKO se element liste učitavaju -->
-        <v-skeleton-loader v-if="isLoading" type="table-tbody@3" width="100%"></v-skeleton-loader>
-        <!-- ************************** -->
-        
-        <!-- **** STAVKE liste **** -->
-        <v-card
-            v-else
-            v-for="vrh in mountains.vrhovi"
-            :key="vrh.id"
-            class="pa-1 my-2 list-item"
-            outlined
-        >
-            <v-row>
-            <v-col cols="3" md="3">
-                {{ vrh.naziv}}
-                <v-icon color="red" v-if="vrh.naziv == mountains.najvisi_vrh">mdi-flag-triangle</v-icon>
-            </v-col>
-            <v-col cols="3" md="5">
-                <v-row class="hidden-md-and-up"> 
-                    <v-col class="text-caption">Visina</v-col>
+                <v-row v-else>
+                    <v-col >
+                        <v-text-field
+                            label="Naziv vrha"
+                            v-model="noviVrh.naziv"
+                        ></v-text-field>  
+                    </v-col>
+                    <v-col >
+                        <v-text-field
+                            label="Visina"
+                            v-model="noviVrh.nadmorska_visina"
+                        ></v-text-field>  
+                    </v-col>
+                    <v-col>
+                        <v-btn text small class="primary--text mt-2" @click="addNewMountain">Potvrdi</v-btn>  
+                    </v-col>
                 </v-row>
-                {{ vrh.nadmorska_visina }} m
             </v-col>
+        </v-row>
 
-            <v-col  cols="12" md="1">
-                <v-icon @click="deletePeak(vrh.id, vrh.naziv)">mdi-delete</v-icon>
-                <router-link class="rm-underline" :to="'/admin/uredi-planinu/' + vrh.id + '/'">
-                    <v-icon class="ml-1">mdi-pencil</v-icon>
-                </router-link>
-            </v-col>
+                
+        <div v-if="!isLoading && mountains.vrhovi.length > 0">
+            <!-- **** ZAGLAVLJE liste **** -->
+            <v-row class="hidden-sm-and-down mt-1">
+                <v-col class="text-left" cols="3">
+                    Naziv
+                </v-col>
+                <v-col class="text-left" cols="6">
+                    Visina
+                </v-col>
             </v-row>
-        </v-card>
-        <!-- ************************** -->
+            <!-- ************************** -->
+
+            <!-- AKO se element liste učitavaju -->
+            <v-skeleton-loader v-if="isLoading" type="table-tbody@3" width="100%"></v-skeleton-loader>
+            <!-- ************************** -->
+            
+            <!-- **** STAVKE liste **** -->
+            <v-card
+                v-else
+                v-for="vrh in mountains.vrhovi"
+                :key="vrh.id"
+                class="pa-1 my-2 list-item"
+                outlined
+            >
+                <v-row>
+                <v-col cols="3" md="3">
+                    {{ vrh.naziv}}
+                    <v-icon color="red" v-if="vrh.naziv == mountains.najvisi_vrh">mdi-flag-triangle</v-icon>
+                </v-col>
+                <v-col cols="3" md="5">
+                    <v-row class="hidden-md-and-up"> 
+                        <v-col class="text-caption">Visina</v-col>
+                    </v-row>
+                    {{ vrh.nadmorska_visina }} m
+                </v-col>
+
+                <v-col  cols="12" md="1">
+                    <v-icon @click="deletePeak(vrh.id, vrh.naziv)">mdi-delete</v-icon>
+                    <router-link class="rm-underline" :to="'/admin/uredi-planinu/' + vrh.id + '/'">
+                        <v-icon class="ml-1">mdi-pencil</v-icon>
+                    </router-link>
+                </v-col>
+                </v-row>
+            </v-card>
+            <!-- ************************** -->
+        </div>
+
+
+        
+        <div v-else>
+            <v-row>
+                <v-col>
+                    Čini se da ova planina nema unesenih vrhova.
+                </v-col>
+            </v-row>
+        </div>
+
     </v-container>
 </template>
 
@@ -70,7 +101,12 @@ import store from "@/store";
 export default {
     name: 'mountainsList',
     data: () => ({
-       
+        noviVrh: {
+            naziv: "",
+            nadmorska_visina: "",
+            planina_id: ""
+        },
+       addNewActivated: false
     }),
     beforeRouteEnter(to, from, next) {
       store.dispatch('mountains/fetchMountain', to.params.id, {root: true})
@@ -101,6 +137,21 @@ export default {
                 }
             })
         /*********************************/
+        },
+        activateAddNew() {
+            console.log("add new activated")
+            this.addNewActivated = true
+        },
+        addNewMountain() {
+            this.noviVrh.planina_id = this.$route.params.id
+            console.log(this.noviVrh)
+
+            store.dispatch('crudUniversalHelper/createItem', { payload: this.noviVrh, url: '/vrhovi' }, {root: true})
+
+            this.addNewActivated = false
+            setTimeout(()=>{
+                store.dispatch('mountains/fetchMountain', this.noviVrh.planina_id, {root: true})
+            }, 700)
         }
     },
     computed: {
