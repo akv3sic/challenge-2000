@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from models.korisnici import get_korisnici_pg, get_korisnik_by_id_pg, post_korisnik_pg
+from models.korisnici import *
 
 _k_req= reqparse.RequestParser()
 _k_req.add_argument("ime", type=str)
@@ -50,3 +50,31 @@ class Korisnik(Resource):
             return{"status":400, "message":"Bad Request"}, 400
 
         return{"status":200, "message":"Success", "korisnici":korisnik}, 200
+
+    def put(self, baza, id):
+        data=_k_req.parse_args()
+        ime=data["ime"]
+        prezime=data["prezime"]
+        email=data["email"]
+        lozinka=data["lozinka"]
+        if data["rola"]=="Admin":
+            rola=True
+        else:
+            rola=False
+        if baza == "postgres":
+            resp=put_korisnik_pg(id, ime, prezime, email, lozinka, rola)
+        elif baza == "mongo":
+            pass
+        else:
+            return {"status":400, "message":"Bad Request"}, 400   
+        return resp, 201
+
+    def delete(self, baza, id):
+        
+        if baza == "postgres":
+            resp=del_korisnik_pg(id)
+        elif baza == "mongo":
+            pass
+        else:
+            return {"status":400, "message":"Bad Request"}, 400   
+        return resp, 200

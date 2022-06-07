@@ -15,7 +15,7 @@ def get_drzave_pg():
         )
         cur= conn.cursor()
 
-        cur.execute("select drzave.id , drzave.naziv, drzave.created_at , count(planine.drzava_id) as broj_planina from sbp.drzave as drzave left join sbp.planine as planine on drzave.id=planine.drzava_id group by drzave.id;")  
+        cur.execute("select drzave.id , drzave.naziv, drzave.created_at , count(planine.drzava_id) as broj_planina from sbp.drzave as drzave left join sbp.planine as planine on drzave.id=planine.drzava_id where drzave.active='True' group by drzave.id;")  
         drzave=cur.fetchall()
         cur.close()
         conn.close()
@@ -60,3 +60,19 @@ def put_drzave_pg(id, naziv):
     cur.close()
     conn.close()
     return {"message":"Success", "status":201}
+
+def del_drzava_pg(id):
+    conn=psycopg2.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password,
+            port=port
+        )
+    cur = conn.cursor()
+    cur.execute("UPDATE sbp.drzave SET active = 'False' WHERE id = " + str(id) + ";")
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message":"Deleted", "status":200}
+    
