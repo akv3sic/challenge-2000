@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from flask import request
-from models.planine import *
+from models.planine import get_planine_pg , get_planina_by_id_pg, post_planine_pg
 
 _planina_reqparse= reqparse.RequestParser()
 _planina_reqparse.add_argument("drzava_id", type=int)
@@ -42,27 +42,4 @@ class Planina(Resource):
             return {"status":400, "message":"Bad Request"}, 400
         return {"status":200, "message":"Success", "planine":planina}, 200
 
-    def put(self, baza, id):
-        data=_planina_reqparse.parse_args()
-        drzava_id=data["drzava_id"]
-        naziv=data["naziv"]
-        if baza == "postgres":
-            
-            resp= put_planina_pg(id,drzava_id, naziv)
-            
-        elif baza =="mongo":
-            pass
-        else:
-            return {"status":400, "message":"Bad Request"}, 400
-        return resp, 201
-
-    def delete(self, baza , id):
-        if baza == "postgres":
-            
-            resp= del_planina_pg(id)
-            
-        elif baza =="mongo":
-            pass
-        else:
-            return {"status":400, "message":"Bad Request"}, 400
-        return resp, 200
+    
