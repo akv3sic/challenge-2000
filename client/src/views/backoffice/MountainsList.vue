@@ -47,7 +47,7 @@
         <!-- AKO se element liste učitavaju -->
         <v-skeleton-loader v-if="isLoading" type="table-tbody@3" width="100%"></v-skeleton-loader>
         <!-- ************************** -->
-        
+
         <!-- **** STAVKE liste **** -->
         <v-card
             v-for="mountain in mountains"
@@ -69,7 +69,20 @@
                 <v-row class="hidden-md-and-up"> 
                     <v-col class="text-caption">Visina</v-col>
                 </v-row>
-                {{ mountain.visina_vrha}} m - {{ mountain.najvisi_vrh }}
+                <span v-if="mountain.visina_vrha">{{ mountain.visina_vrha}} m - {{ mountain.najvisi_vrh }}</span>
+                <span v-else>
+                    <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-icon
+                            v-bind="attrs"
+                            v-on="on"
+                            >
+                            mdi-alert
+                            </v-icon>
+                        </template>
+                        <span>Nema dodanih vrhova.</span>
+                    </v-tooltip>
+                </span>
             </v-col>
 
             <v-col  cols="12" md="1">

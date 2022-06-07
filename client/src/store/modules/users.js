@@ -3,7 +3,9 @@ import httpClient from '@/common/httpClient'
 // initial state
 const state = () => ({
    users: [],
-   isLoading: true
+   isLoading: true,
+   // ui control
+   addNewActivated: false
 })
 
 // getters
@@ -13,7 +15,10 @@ const getters = {
       },
     isLoading(state) {
         return state.isLoading;
-      }
+      },
+    addNewActivated(state) {
+        return state.addNewActivated
+    },
 }
 
 // actions
@@ -65,6 +70,9 @@ const actions = {
           })
       })
   },
+  setAddNewActivated( {commit}, payload) {
+    commit('SET_ADD_NEW_ACTIVATED', payload)
+},
 }
 
 // mutations
@@ -93,6 +101,9 @@ const mutations = {
             timer: 1600
         })
         /*********************************/
+    },
+    SET_ADD_NEW_ACTIVATED (state, payload) {
+      state.addNewActivated = payload
     },
 }
 
