@@ -11,7 +11,7 @@ def get_korisnici_pg():
         )
         cur= conn.cursor()
 
-        cur.execute("select u.id , u.ime, u.prezime, u.email, u.is_admin from sbp.korisnici as u ;")
+        cur.execute("select u.id , u.ime, u.prezime, u.email, u.is_admin from sbp.korisnici as u where u.active = 'True' ;")
         korisnici=cur.fetchall()
         cur.close()
         conn.close()
@@ -36,9 +36,9 @@ def get_korisnik_by_id_pg(id):
             port=port
         )
     cur= conn.cursor()
-    cur.execute("select u.id, u.ime, u.prezime, u.email, u.is_admin, u.created_at, u.updated_at from sbp.korisnici as u where u.id ="+ str(id) + ";")
+    cur.execute("select u.id, u.ime, u.prezime, u.email, u.is_admin, u.created_at, u.updated_at from sbp.korisnici as u where u.id ="+ str(id) + " and u.active='True';")
     korisnik=cur.fetchone()
-    cur.execute("select ps.id, ps.naslov , ps.opis, ps.link_gpx_traga, s.link_slike from sbp.postignuca as ps  join sbp.slike_postignuca as s on s.postignuce_id=ps.id where ps.korisnik_id=" + str(id) +"and s.id=(select MIN(s2.id) from sbp.slike_postignuca as s2 where s2.postignuce_id= ps.id);")
+    cur.execute("select ps.id, ps.naslov , ps.opis, ps.link_gpx_traga, (select s.link_slike from sbp.slike_postignuca as s where s.postignuce_id = ps.id and s.active='True' limit 1 ) from sbp.postignuca as ps where ps.korisnik_id=" + str(id) +" and ps.active='True';")
     postignuca=cur.fetchall()
     response={"id":korisnik[0], "ime":korisnik[1], "prezime":korisnik[2], "email":korisnik[3], "created_at":str(korisnik[5]), "updated_at":str(korisnik[6])}
     cur.close()
@@ -70,3 +70,33 @@ def post_korisnik_pg(ime, prezime, email, lozinka, rola):
     cur.close()
     conn.close()
     return {"message":"Success", "status":201}
+
+def put_korisnik_pg(id,ime, prezime, email, lozinka, rola):
+    conn=psycopg2.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password,
+            port=port
+        )
+    cur=conn.cursor()
+    cur.execute("UPDATE sbp.korisnici SET ime ='{}', prezime='{}', email='{}',lozinka='{}', is_admin='{}' where id='{}';".format(ime, prezime, email, lozinka, rola, id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message":"Success", "status":201}
+
+def del_korisnik_pg(id):
+    conn=psycopg2.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password,
+            port=port
+        )
+    cur=conn.cursor()
+    cur.execute("UPDATE sbp.korisnici SET active='False' where id='{}';".format(id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message":"Success", "status":200}

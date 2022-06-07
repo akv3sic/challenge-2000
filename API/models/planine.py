@@ -10,9 +10,9 @@ def get_planine_pg():
             port=port
         )
         cur= conn.cursor()
-        cur.execute("select d.naziv , pl.naziv, pl.id, v.naziv, v.nadmorska_visina from sbp.drzave as d inner join sbp.planine as pl on d.id=pl.drzava_id inner join sbp.vrhovi as v on pl.id=v.planina_id where v.nadmorska_visina=(SELECT MAX(v2.nadmorska_visina) FROM sbp.vrhovi as v2 where v2.planina_id=pl.id);")
+        cur.execute("select d.naziv , pl.naziv, pl.id, v.naziv, v.nadmorska_visina from sbp.drzave as d inner join sbp.planine as pl on d.id=pl.drzava_id inner join sbp.vrhovi as v on pl.id=v.planina_id where v.nadmorska_visina=(SELECT MAX(v2.nadmorska_visina) FROM sbp.vrhovi as v2 where v2.planina_id=pl.id and v.active='True') and pl.active='True' and d.active ='True' and v.active='True';")
         planine = cur.fetchall()
-        cur.execute("select d.naziv , pl.naziv, pl.id from sbp.drzave as d inner join sbp.planine as pl on d.id=pl.drzava_id;")
+        cur.execute("select d.naziv , pl.naziv, pl.id from sbp.drzave as d inner join sbp.planine as pl on d.id=pl.drzava_id where d.active = 'True' and pl.active='True';")
         pl_bez_vrhova=cur.fetchall()
         cur.close()
         conn.close()
@@ -43,7 +43,7 @@ def get_planina_by_id_pg(id):
         )
     cur= conn.cursor()
     
-    cur.execute("select d.naziv , pl.naziv, pl.id from sbp.drzave as d left join sbp.planine as pl on d.id=pl.drzava_id where pl.id="+ str(id) +";")
+    cur.execute("select d.naziv , pl.naziv, pl.id from sbp.drzave as d left join sbp.planine as pl on d.id=pl.drzava_id where pl.id="+ str(id) +" and pl.active=True and d.active='True';")
 
 
 
@@ -52,7 +52,7 @@ def get_planina_by_id_pg(id):
     
     response={"drzava":planina[0],"naziv":planina[1], "id":planina[2]}
     try:
-        cur.execute("select v.id , v.naziv, v.nadmorska_visina from sbp.vrhovi  as v where v.planina_id=" + str(id) + " order by v.nadmorska_visina DESC;")
+        cur.execute("select v.id , v.naziv, v.nadmorska_visina from sbp.vrhovi  as v where v.planina_id=" + str(id) + " and v.active = 'True' order by v.nadmorska_visina DESC;")
         vrhovi=cur.fetchall()
         cur.close()
         conn.close()
@@ -89,3 +89,37 @@ def post_planine_pg(drzava_id, naziv):
     cur.close()
     conn.close()
     return {"message":"Success", "status":201}
+
+def put_planina_pg(id, drzava_id, naziv):
+    conn=psycopg2.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password,
+            port=port
+        )
+    
+    cur= conn.cursor()
+    cur.execute("UPDATE sbp.planine SET drzava_id='{}', naziv = '{}' where id = {};".format(drzava_id, naziv, id))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message":"Success", "status":201}
+
+def del_planina_pg(id):
+    conn=psycopg2.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password,
+            port=port
+        )
+    
+    cur= conn.cursor()
+    cur.execute("UPDATE sbp.planine SET active='False' where id = {};".format(id))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message":"Success", "status":200}
