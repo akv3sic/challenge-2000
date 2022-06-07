@@ -1,9 +1,11 @@
 from flask_restful import Resource, reqparse
 from flask import request
-from models.drzave import get_drzave_pg, post_drzave_pg
+from models.drzave import get_drzave_pg, post_drzave_pg, put_drzave_pg 
 
 _drzava_parser=reqparse.RequestParser()
 _drzava_parser.add_argument("naziv", type=str)
+_drzava_parser.add_argument("id", type=int)
+
 
 class Drzave(Resource):
 
@@ -27,3 +29,16 @@ class Drzave(Resource):
         else:
             return{"status":400, "message":"Bad Request"}, 400
         return resp, 201
+    
+    def put(self, baza):
+        if baza=="postgres":
+            data= _drzava_parser.parse_args()
+            naziv=data["naziv"]
+            id=data["id"]
+            resp=put_drzave_pg(id, naziv)
+        elif baza == "mongo":
+            pass
+        else:
+            return{"status":400, "message":"Bad Request"}, 400
+        return resp, 201
+

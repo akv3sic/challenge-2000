@@ -45,3 +45,18 @@ def post_drzave_pg(naziv):
     cur.close()
     conn.close()
     return {"message":"Success", "status":201}
+
+def put_drzave_pg(id, naziv):
+    conn=psycopg2.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password,
+            port=port
+        )
+    cur = conn.cursor()
+    cur.execute("UPDATE sbp.drzave SET naziv= '" + str(naziv) +"' WHERE id = " + str(id) + ";")
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message":"Success", "status":201}

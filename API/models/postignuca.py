@@ -41,3 +41,35 @@ def post_postignuce_pg(korisnik_id, naslov, opis, link):
     cur.close()
     conn.close()
     return {"message":"Success", "status":201}
+
+def post_slike_pg(postignuce_id, link_slike, naziv, opis):
+    conn=psycopg2.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password,
+            port=port
+        )
+    cur=conn.cursor()
+    cur.execute("INSERT INTO sbp.slike_postignuca (postignuce_id, link_slike, naziv, opis) VALUES ('{}','{}','{}','{}');".format(postignuce_id, link_slike, naziv, opis))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message":"Success", "status":201}
+
+def post_komentara_pg(postignuce_id, komentar_sadrzaj, korisnik_id):
+    conn=psycopg2.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password,
+            port=port
+        )
+    cur=conn.cursor()
+    cur.execute("INSERT INTO sbp.komentari (postignuce_id, komentar_sadrzaj, komentar_tip, korisnik_id) VALUES ('{}','{}','Komentar','{}');".format(postignuce_id, komentar_sadrzaj, korisnik_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message":"Success", "status":201}
+
+

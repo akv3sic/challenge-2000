@@ -6,7 +6,7 @@ from resources.korisnici import Korisnici, Korisnik
 from resources.planine import Planina, Planine
 from resources.staze import Staze
 from resources.vrhovi import Vrh, Vrhovi
-from resources.postignuca import Postignuce, Postigunca
+from resources.postignuca import PostignucaKomentari, Postignuce, Postigunca, PostignucaSlike
 
 
 app = Flask(__name__)
@@ -25,6 +25,9 @@ api.add_resource(Postignuce, "/<string:baza>/postignuca/<string:id>"),
 api.add_resource(Vrhovi, "/<string:baza>/vrhovi"),
 api.add_resource(Staze, "/<string:baza>/staze"),
 api.add_resource(Postigunca, "/<string:baza>/postignuca" ),
+api.add_resource(PostignucaSlike, "/<string:baza>/postignuca/<string:id>/slike"),
+api.add_resource(PostignucaKomentari, "/<string:baza>/postignuca/<string:id>/komentari"),
+
 
 
 

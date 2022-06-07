@@ -10,15 +10,26 @@ def get_planine_pg():
             port=port
         )
         cur= conn.cursor()
-        cur.execute("select d.naziv , pl.naziv, pl.id, v.naziv, v.nadmorska_visina from sbp.drzave as d left join sbp.planine as pl on d.id=pl.drzava_id left join sbp.vrhovi as v on pl.id=v.planina_id where v.nadmorska_visina=(SELECT MAX(v2.nadmorska_visina) FROM sbp.vrhovi as v2 where v2.planina_id=pl.id);")
+        cur.execute("select d.naziv , pl.naziv, pl.id, v.naziv, v.nadmorska_visina from sbp.drzave as d inner join sbp.planine as pl on d.id=pl.drzava_id inner join sbp.vrhovi as v on pl.id=v.planina_id where v.nadmorska_visina=(SELECT MAX(v2.nadmorska_visina) FROM sbp.vrhovi as v2 where v2.planina_id=pl.id);")
         planine = cur.fetchall()
+        cur.execute("select d.naziv , pl.naziv, pl.id from sbp.drzave as d inner join sbp.planine as pl on d.id=pl.drzava_id;")
+        pl_bez_vrhova=cur.fetchall()
         cur.close()
         conn.close()
-
+        cl=[]
         response = []
         for row in planine:
+            cl.append(row[1])
             x={"drzava":row[0],"naziv":row[1], "id":row[2], "najvisi_vrh":row[3], "visina_vrha":row[4]}
             response.append(x)
+        
+        for row in pl_bez_vrhova:
+            if row[1] in cl:
+                pass
+            else:
+                x={"drzava":row[0],"naziv":row[1], "id":row[2], "najvisi_vrh":None, "visina_vrha":None}
+                response.append(x)
+
 
         return response
 
@@ -31,25 +42,43 @@ def get_planina_by_id_pg(id):
             port=port
         )
     cur= conn.cursor()
-    cur.execute("select d.naziv , pl.naziv, pl.id, v.naziv, v.nadmorska_visina from sbp.drzave as d left join sbp.planine as pl on d.id=pl.drzava_id left join sbp.vrhovi as v on pl.id=v.planina_id where v.nadmorska_visina=(SELECT MAX(v2.nadmorska_visina) FROM sbp.vrhovi as v2 where v2.planina_id="+ str(id) +");")
+    
+    cur.execute("select d.naziv , pl.naziv, pl.id from sbp.drzave as d left join sbp.planine as pl on d.id=pl.drzava_id where pl.id="+ str(id) +";")
+
+
 
     planina=cur.fetchone()
+    print(planina)
     cur.execute("select v.id , v.naziv, v.nadmorska_visina from sbp.vrhovi  as v where v.planina_id=" + str(id) + ";")
     vrhovi=cur.fetchall()
     cur.close()
     conn.close()
     response={}
     
-    response={"drzava":planina[0],"naziv":planina[1], "id":planina[2], "najvisi_vrh":planina[3], "visina_vrha":planina[4]}
+    response={"drzava":planina[0],"naziv":planina[1], "id":planina[2]}
+    try:
+        cur.execute("select v.id , v.naziv, v.nadmorska_visina from sbp.vrhovi  as v where v.planina_id=" + str(id) + " order by v.nadmorska_visina DESC;")
+        vrhovi=cur.fetchall()
+        cur.close()
+        conn.close()
 
-    vrh=[]
-    for row in vrhovi: 
-        x={"id":row[0], "naziv":row[1], "nadmorska_visina":row[2]}
-        vrh.append(x)
+        vrh=[]
+        response["najvisi_vrh"]=vrhovi[0][1]
+        response["nadmorska_visina"]=vrhovi[0][2]
+        for row in vrhovi: 
+            x={"id":row[0], "naziv":row[1], "nadmorska_visina":row[2]}
+            vrh.append(x)
+        
+        response["vrhovi"]=vrh
+
+        return response
+    except:
+        response["najvisi_vrh"]=None
+        response["nadmorska_visina"]=None
+        response["vrhovi"]=[]
+        return response
     
-    response["vrhovi"]=vrh
-
-    return response
+    
 
 def post_planine_pg(drzava_id, naziv):
     conn=psycopg2.connect(
