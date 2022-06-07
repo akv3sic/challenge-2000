@@ -10,9 +10,9 @@ def get_vrh_by_id_pg(id):
             port=port
         )
     cur= conn.cursor()
-    cur.execute("select v.id , v.naziv, v.nadmorska_visina, pl.naziv from sbp.vrhovi  as v join sbp.planine as pl on v.planina_id=pl.id where v.id=" + str(id) + ";")
+    cur.execute("select v.id , v.naziv, v.nadmorska_visina, pl.naziv from sbp.vrhovi  as v join sbp.planine as pl on v.planina_id=pl.id where v.id=" + str(id) + " and v.active='True' and pl.active='True';")
     vrh=cur.fetchone()
-    cur.execute("select s.id, v.naziv, s.link_gpx_traga, s.naziv, s.opis from sbp.staze as s join sbp.vrhovi as v on s.vrh_id=v.id where s.vrh_id ="+ str(id) + ";")
+    cur.execute("select s.id, v.naziv, s.link_gpx_traga, s.naziv, s.opis from sbp.staze as s join sbp.vrhovi as v on s.vrh_id=v.id where s.vrh_id ="+ str(id) + " and s.active='True';")
     staze= cur.fetchall()
     cur.close()
     conn.close()
@@ -40,3 +40,33 @@ def post_vrh_pg(planina_id, naziv, nadmorska_visina):
     conn.close()
     return {"message":"Success", "status":201}
 
+def put_vrh_pg(id, planina_id, naziv, nadmorska_visina):
+    conn=psycopg2.connect(
+        host=host,
+        database=database,
+        user=user,
+        password=password,
+        port=port
+    )
+    cur=conn.cursor()
+    cur.execute("UPDATE sbp.vrhovi SET planina_id = {}, naziv='{}', nadmorska_visina = {} where id = {}; ".format(planina_id, naziv, nadmorska_visina, id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message":"Success", "status":201}
+
+
+def del_vrh_pg(id):
+    conn=psycopg2.connect(
+        host=host,
+        database=database,
+        user=user,
+        password=password,
+        port=port
+    )
+    cur=conn.cursor()
+    cur.execute("UPDATE sbp.vrhovi SET active='False' where id = {}; ".format(id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"message":"Success", "status":200}

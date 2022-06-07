@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from models.vrhovi import get_vrh_by_id_pg, post_vrh_pg
+from models.vrhovi import *
 
 _vrh_reqparse=reqparse.RequestParser()
 _vrh_reqparse.add_argument("planina_id", type=int)
@@ -16,6 +16,31 @@ class Vrh(Resource):
         else:
             return {"status":400, "message":"Bad Request"}, 400
         return {"status":200, "message":"Success", "vrh":vrh}, 200
+    
+    def put(self, baza, id):
+        data=_vrh_reqparse.parse_args()
+        planina_id=data["planina_id"]
+        naziv=data["naziv"]
+        nadmorska_visina=data["nadmorska_visina"]
+        if baza == "postgres":
+            resp=put_vrh_pg(id, planina_id, naziv, nadmorska_visina)
+        elif baza == "mongo":
+            pass
+        else:
+            return {"status":400, "message":"Bad Request"}, 400   
+        return resp, 201
+    
+    def delete(self, baza, id):
+        if baza == "postgres":
+            resp=del_vrh_pg(id)
+        elif baza == "mongo":
+            pass
+        else:
+            return {"status":400, "message":"Bad Request"}, 400  
+        return resp, 200 
+
+
+
 
 class Vrhovi(Resource):
 

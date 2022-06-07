@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from models.postignuca import get_postignuce_by_id_pg , post_postignuce_pg, post_slike_pg, post_komentara_pg
+from models.postignuca import *
 
 _p_req=reqparse.RequestParser()
 _p_req.add_argument("korisnik_id", type=int)
@@ -28,6 +28,32 @@ class Postignuce(Resource):
             return{"status":400, "message":"Bad Request"}, 400
 
         return{"status":200, "message":"Success", "postignuce":pos}, 200
+    
+    def put(self, baza, id):
+        data=_p_req.parse_args()
+        korisnik_id=data["korisnik_id"]
+        naslov=data["naslov"]
+        opis=data["opis"]
+        link_gpx_traga=data["link_gpx_traga"]
+        if baza == "postgres":
+            resp=put_postignuce_pg(id, korisnik_id, naslov, opis, link_gpx_traga)
+        elif baza == "mongo":
+            pass
+        else:
+            return{"status":400, "message":"Bad Request"}, 400
+
+        return resp, 201
+
+    def delete(self, baza , id):
+        if baza == "postgres":
+            resp=del_postignuce_pg(id)
+        elif baza == "mongo":
+            pass
+        else:
+            return{"status":400, "message":"Bad Request"}, 400
+
+        return resp, 200
+
 
 class Postigunca(Resource):
     def post(self, baza):
