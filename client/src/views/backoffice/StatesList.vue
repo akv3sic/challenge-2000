@@ -3,10 +3,22 @@
         <v-row>
             <v-col>
                 <span class="text-h5">Države</span>
-                <span class="text-h5 grey--text"> ({{ states.length }})</span>
-                <div class="ml-2 d-inline">
-                    <v-btn text small class="primary--text" to="drzave-dodaj-novu">Dodaj novu</v-btn>   
+                <span class="text-h5 grey--text" v-if="!isLoading"> ({{ states.length }})</span>
+                <div class="ml-2 d-inline" v-if="!addNewActivated">
+                    <v-btn text small class="primary--text" @click="activateAddNew">Dodaj novu</v-btn>   
                 </div>
+
+                <v-row v-if="addNewActivated">
+                    <v-col >
+                        <v-text-field
+                            label="Naziv države"
+                            v-model="novaDrzava.naziv"
+                        ></v-text-field>  
+                    </v-col>
+                    <v-col>
+                        <v-btn text small class="primary--text mt-2" @click="addNewState">Potvrdi</v-btn>  
+                    </v-col>
+                </v-row>
             </v-col>
         </v-row>
 
@@ -15,10 +27,10 @@
             <v-col class="text-left" cols="4">
                 Naziv
             </v-col>
-            <v-col class="text-left" cols="4">
+            <v-col class="text-left" cols="3">
                 Kreirano
             </v-col>
-            <v-col class="text-left" cols="4">
+            <v-col class="text-left" cols="3">
                 Broj planina
             </v-col>
         </v-row>
@@ -32,19 +44,19 @@
         <v-card
             v-for="state in states"
             :key="state.id"
-            class="pa-1 my-2"
+            class="pa-1 my-2 list-item"
             outlined
         >
             <v-row>
-            <v-col cols="7" md="3">
+            <v-col cols="3" md="4">
                 {{ state.naziv}}
             </v-col>
-            <v-col cols="3" md="3">
+            <v-col cols="5" md="3">
                 <v-row class="hidden-md-and-up"> 
                     <v-col class="text-caption">Kreirano</v-col>
                 </v-row>
                 {{ state.created_at}}
-            </v-col><v-col cols="3" md="6">
+            </v-col><v-col cols="3" md="3">
                 <v-row class="hidden-md-and-up"> 
                     <v-col class="text-caption">Broj planina</v-col>
                 </v-row>
@@ -70,7 +82,10 @@ import Swal from 'sweetalert2'
 export default {
     name: 'statesList',
     data: () => ({
-       
+       novaDrzava: {
+           naziv: ""
+       },
+       addNewActivated: false
     }),
     mounted() {
         this.fetchStates();
@@ -78,7 +93,7 @@ export default {
     methods: {
         fetchStates() {
             this.$store
-                .dispatch('states/fetchStates', {categoryId: null}, {root: true})
+                .dispatch('states/fetchStates', {root: true})
         },
         deleteState(stateId, stateName, stateImageUrl) {
             /* confirmation dialog */
@@ -99,11 +114,25 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
                 this.$store
-                .dispatch('state/deleteState', stateId, {root: true})
+                .dispatch('states/deleteState', stateId, {root: true})
                 this.fetchstates()
                 }
             })
         /*********************************/
+        },
+        activateAddNew() {
+            console.log("add new activated")
+            this.addNewActivated = true
+        },
+        addNewState() {
+            this.$store
+                .dispatch('states/addNewState', this.novaDrzava, { root: true })
+                .catch( err => {
+                    console.log(err)
+                })
+            this.addNewActivated = false
+            setTimeout(()=>{this.fetchStates()}, 700)
+            
         }
     },
     computed: {
