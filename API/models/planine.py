@@ -48,12 +48,7 @@ def get_planina_by_id_pg(id):
 
 
     planina=cur.fetchone()
-    print(planina)
-    cur.execute("select v.id , v.naziv, v.nadmorska_visina from sbp.vrhovi  as v where v.planina_id=" + str(id) + ";")
-    vrhovi=cur.fetchall()
-    cur.close()
-    conn.close()
-    response={}
+ 
     
     response={"drzava":planina[0],"naziv":planina[1], "id":planina[2]}
     try:
