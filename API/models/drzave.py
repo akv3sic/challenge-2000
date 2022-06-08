@@ -2,15 +2,25 @@ import psycopg2
 import pymongo
 from mongoCl import dr
 from db import host, database,user,password, port
+from datetime import datetime
 
 
 def post_drzave_mg(naziv):
-    content = {"naziv": naziv, "active":"True", "planine":[]}
+    content = {"naziv": naziv, "active":"True", "planine":[], "created_at":datetime.now()}
     dr.insert_one(content)
     return {"message":"Success", "status":201}
 
 def get_drzave_mg():
-    pass
+    drzave= list(dr.find({"active":"True"}))
+    d=[]
+    for row in drzave:
+        x={"id":str(row["_id"]), "naziv": row["naziv"], "created_at":str(row["created_at"]), "broj_planina":len(row["planine"])}
+        d.append(x)
+    
+    return d
+
+
+    
 
 def put_drzave_mg():
     pass
@@ -36,7 +46,6 @@ def get_drzave_pg():
         conn.close()
         response=[]
         for row in drzave:
-            print(row)
             x={"id":row[0], "naziv": row[1], "created_at":str(row[2]), "broj_planina":row[3]}
             
             response.append(x)

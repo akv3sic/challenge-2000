@@ -12,7 +12,7 @@ class Vrh(Resource):
         if baza == "postgres":
             vrh=get_vrh_by_id_pg(id)
         elif baza == "mongo":
-            pass
+            vrh=get_vrh_by_id_mg(id)
         else:
             return {"status":400, "message":"Bad Request"}, 400
         return {"status":200, "message":"Success", "vrh":vrh}, 200

@@ -16,6 +16,30 @@ def post_planine_mg(drzava_id, naziv):
     return {"message":"Success", "status":201}
 
 
+def get_planine_mg():
+    drzave= list(dr.find({"active":"True"}))
+    resp=[]
+    for x in drzave:
+        d=str(x["naziv"])
+        for y in x["planine"]:
+            maxV=None
+            if len(y["vrhovi"])>0:
+                
+                maxV = max(y["vrhovi"], key=lambda x:x['nadmorska_visina'])
+            if maxV== None:
+                naziv=None
+                nad_vis=None
+            else:
+                naziv=maxV["naziv"]
+                nad_vis=maxV["nadmorska_visina"]
+            x={"drzava":d,"naziv":y["naziv"], "id":str(y["_id"]), "najvisi_vrh":naziv, "visina_vrha":nad_vis}
+            resp.append(x)
+    
+    return resp
+
+
+
+
 def get_planine_pg():
         conn=psycopg2.connect(
             host=host,
@@ -47,6 +71,37 @@ def get_planine_pg():
 
 
         return response
+
+def get_planina_by_id_mg(id):
+    drzave= list(dr.find({"planine":{"$elemMatch":{"_id":ObjectId(id)}}}))
+    drzave=drzave[0]
+    drzava=drzave["naziv"]
+    planine=drzave["planine"]
+    for x in planine:
+        if x["_id"]==ObjectId(id):
+            planina=x
+        else:
+            pass
+    if len(planina["vrhovi"])>0:
+                
+                maxV = max(planina["vrhovi"], key=lambda x:x['nadmorska_visina'])
+    if maxV== None:
+                naziv=None
+                nad_vis=None
+    else:
+                naziv=maxV["naziv"]
+                nad_vis=maxV["nadmorska_visina"]
+
+    resp={"drzava":drzava,"naziv":planina["naziv"], "id":str(planina["_id"]), "vrhovi":[]}
+
+    if len(planina["vrhovi"])>0:
+        for row in planina["vrhovi"]:
+            y={"id":str(row["_id"]), "naziv":row["naziv"], "nadmorska_visina":row["nadmorska_visina"]}
+            resp["vrhovi"].append(y)
+    
+    return resp
+
+
 
 def get_planina_by_id_pg(id):
     conn=psycopg2.connect(
