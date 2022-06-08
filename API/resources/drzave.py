@@ -12,7 +12,7 @@ class Drzave(Resource):
         if baza=="postgres":
             drzave = get_drzave_pg()
         elif baza=="mongo":
-            pass
+            drzave=get_drzave_mg()
         else:
             return{"status":400, "message":"Bad Request"}, 400
         

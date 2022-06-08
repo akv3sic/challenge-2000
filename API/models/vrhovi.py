@@ -3,6 +3,23 @@ import pymongo
 from bson.objectid import ObjectId
 from mongoCl import dr
 from db import *
+def get_vrh_by_id_mg(id):
+    drzava= dr.find_one({"planine.vrhovi._id":ObjectId(id)})
+    
+    if len(drzava["planine"])>0:
+        for x in drzava["planine"]:
+            if len(x["vrhovi"])>0:
+                for y in x["vrhovi"]:
+                    if y["_id"]==ObjectId(id):
+                        idv=y["_id"]
+                        naziv=y["naziv"]
+                        nad_vis=y["nadmorska_visina"]
+                        pl = x["naziv"]
+
+
+
+    response={"id":str(idv), "naziv":naziv, "nadmorska_visina":nad_vis, "planina":pl}
+    return response
 
 def get_vrh_by_id_pg(id):
     conn=psycopg2.connect(

@@ -12,7 +12,7 @@ class Planine(Resource):
         if baza == "postgres":
             planine= get_planine_pg()
         elif baza == "mongo":
-            pass
+            planine=get_planine_mg()
         else:
             return{"status":400, "message":"Bad Request"}, 400
 
@@ -37,7 +37,7 @@ class Planina(Resource):
             id = int(id)
             planina= get_planina_by_id_pg(id)
         elif baza =="mongo":
-            pass
+            planina=get_planina_by_id_mg(id)
         else:
             return {"status":400, "message":"Bad Request"}, 400
         return {"status":200, "message":"Success", "planine":planina}, 200
