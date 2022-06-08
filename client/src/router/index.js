@@ -46,6 +46,12 @@ const routes = [
         component: () => import("@/views/backoffice/UsersAddNew")
       },
       {
+        path: 'uredi-korisnika/:id',
+        name: 'users-edit',
+        component: () => import("@/views/backoffice/UsersEdit"),
+        props: true
+      },
+      {
         path: 'drzave',
         name: 'states-list',
         component: () => import("@/views/backoffice/StatesList")

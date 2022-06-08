@@ -54,26 +54,49 @@
                 v-else
                 v-for="vrh in mountains.vrhovi"
                 :key="vrh.id"
-                class="pa-1 my-2 list-item"
+                class="pa-1 my-2"
                 outlined
             >
                 <v-row>
                 <v-col cols="3" md="3">
-                    {{ vrh.naziv}}
+                    <span v-if="editedId != vrh.id">
+                        {{ vrh.naziv}}
+                    </span>
+                    <v-text-field
+                        v-else
+                        v-model="vrh.naziv"
+                        class="pa-0"
+                    >
+                    </v-text-field>
+
+                    <!-- najvisi vrh ima zastavicu -->
                     <v-icon color="red" v-if="vrh.naziv == mountains.najvisi_vrh">mdi-flag-triangle</v-icon>
                 </v-col>
                 <v-col cols="3" md="5">
                     <v-row class="hidden-md-and-up"> 
                         <v-col class="text-caption">Visina</v-col>
                     </v-row>
-                    {{ vrh.nadmorska_visina }} m
+                    <span v-if="editedId != vrh.id">
+                        {{ vrh.nadmorska_visina }} m
+                    </span>
+                    <v-text-field
+                        v-else
+                        v-model="vrh.nadmorska_visina"
+                        class="pa-0"
+                    >
+                    </v-text-field>
                 </v-col>
 
                 <v-col  cols="12" md="1">
-                    <v-icon @click="deletePeak(vrh.id, vrh.naziv)">mdi-delete</v-icon>
-                    <router-link class="rm-underline" :to="'/admin/uredi-planinu/' + vrh.id + '/'">
-                        <v-icon class="ml-1">mdi-pencil</v-icon>
-                    </router-link>
+                    <div  v-if="editedId != vrh.id">
+                        <v-icon @click="deletePeak(vrh.id, vrh.naziv)">mdi-delete</v-icon>
+                        <v-icon class="ml-1" @click="activateEdit(vrh.id)">mdi-pencil</v-icon>
+                    </div>
+
+                    <div v-else>
+                        <v-icon class="ml-1" @click="updatePeak" color="green">mdi-check</v-icon>
+                        <v-icon class="ml-1" @click="activateEdit(null)" color="red">mdi-close</v-icon>
+                    </div>
                 </v-col>
                 </v-row>
             </v-card>
@@ -106,20 +129,19 @@ export default {
             nadmorska_visina: "",
             planina_id: ""
         },
-       addNewActivated: false
+       addNewActivated: false,
+       editedId: null
     }),
     beforeRouteEnter(to, from, next) {
       store.dispatch('mountains/fetchMountain', to.params.id, {root: true})
       next()
     },
     methods: {
-        deleteMountain(mountainId, mountainName, mountainImageUrl) {
+        deletePeak(peakId, peakName) {
             /* confirmation dialog */
             Swal.fire({
-                title: 'Sigurno želite izbrisati ovu planinu?',
-                text: mountainName,
-                imageUrl: mountainImageUrl,
-                imageHeight: 135,
+                title: 'Sigurno želite izbrisati ovaj vrh?',
+                text: peakName,
                 showDenyButton: true,
                 confirmButtonText: `Da, izbriši`,
                 confirmButtonColor: '#052949',
@@ -132,8 +154,10 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
                 this.$store
-                .dispatch('mountain/deleteMountain', mountainId, {root: true})
-                this.fetchMountains()
+                .dispatch('crudUniversalHelper/deleteItem', {id: peakId, url: 'vrhovi'}, {root: true})
+                setTimeout(() => {
+                    this.$store.dispatch('mountains/fetchMountain', this.$route.params.id, {root: true})
+                }, 300)
                 }
             })
         /*********************************/
@@ -141,6 +165,30 @@ export default {
         activateAddNew() {
             console.log("add new activated")
             this.addNewActivated = true
+        },
+        activateEdit(id) {
+            console.log("uredi vrh id " + id)
+            this.editedId = id
+        },
+        updatePeak(){
+            this.noviVrh.naziv = this.mountains.vrhovi.find(x => x.id === this.editedId).naziv
+            this.noviVrh.nadmorska_visina = this.mountains.vrhovi.find(x => x.id === this.editedId).nadmorska_visina
+            this.noviVrh.planina_id = this.$route.params.id
+            console.log(JSON.stringify(this.noviVrh) + " idemo")
+
+            this.$store
+                .dispatch('crudUniversalHelper/updateItem',
+                        {payload: this.noviVrh, url: 'vrhovi/' + this.editedId},
+                        {root: true})
+                .catch( err => {
+                    console.log(err)
+                })
+    
+            this.editedId = null
+            setTimeout(()=> {
+                this.$store.dispatch('mountains/fetchMountain', this.$route.params.id, {root: true})
+            }, 400)
+            
         },
         addNewMountain() {
             this.noviVrh.planina_id = this.$route.params.id

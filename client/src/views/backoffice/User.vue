@@ -17,7 +17,7 @@
         </v-row>
 
         <!--********************* izlistana postignuća ************************-->
-        <v-container v-if="!addNewActivated">
+        <v-container v-if="!addNewActivated" class="pa-0">
             <v-row>
                 <v-col>
                     <span class="text-h6">Postignuća</span>
@@ -55,12 +55,13 @@
                     v-else
                     v-for="postignuce in users.postignuca"
                     :key="postignuce.id"
-                    class="pa-1 my-2 list-item"
+                    class="pa-1 my-2"
                     outlined
                 >
                     <v-row>
                     <v-col cols="3" md="1">
-                        <v-img :src="postignuce.link_slike" contain height="55px"></v-img>
+                        <v-img :src="postignuce.link_slike" contain height="55px" v-if="postignuce.link_slike"></v-img>
+                        <v-img src="../../../src/assets/img/placeholder-image.png" contain height="55px" v-else></v-img>
                     </v-col>
                     <v-col cols="5" md="2">
                         {{ postignuce.naslov}}
@@ -78,6 +79,9 @@
                         <v-icon @click="openGpxTrace(postignuce.link_gpx_traga)">mdi-eye-arrow-right</v-icon>  
                     </v-col>
                     <v-col  cols="12" md="1">
+                        <router-link class="rm-underline" :to="'postignuce/' + postignuce.id">
+                            <v-icon class="ml-1">mdi-book-open</v-icon>
+                        </router-link>
                         <v-icon @click="deleteAchievement(postignuce.id, postignuce.naslov)">mdi-delete</v-icon>
                         <router-link class="rm-underline" :to="'/admin/uredi-postignuce/' + postignuce.id + '/'">
                             <v-icon class="ml-1">mdi-pencil</v-icon>
@@ -126,13 +130,11 @@ export default {
     methods: {
         ...mapActions('users', ['setAddNewActivated']),
 
-        deleteMountain(mountainId, mountainName, mountainImageUrl) {
+        deleteAchievement(postignuceId, postignuceNaslov) {
             /* confirmation dialog */
             Swal.fire({
-                title: 'Sigurno želite izbrisati ovu planinu?',
-                text: mountainName,
-                imageUrl: mountainImageUrl,
-                imageHeight: 135,
+                title: 'Sigurno želite izbrisati ovo postignuće?',
+                text: postignuceNaslov,
                 showDenyButton: true,
                 confirmButtonText: `Da, izbriši`,
                 confirmButtonColor: '#052949',
@@ -145,8 +147,11 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
                 this.$store
-                .dispatch('mountain/deleteMountain', mountainId, {root: true})
-                this.fetchMountains()
+                .dispatch('crudUniversalHelper/deleteItem', {id: postignuceId, url: 'postignuca'}, {root: true})
+                setTimeout(() => {
+                    this.$store.dispatch('users/fetchUser', this.$route.params.id, {root: true})
+                }, 400)    
+                
                 }
             })
         /*********************************/

@@ -17,6 +17,17 @@
         </v-list-item>
 
         <v-divider></v-divider>
+              <v-select
+              v-model="selectedDatabase"
+              :items="databases"
+              label="Odabir baze"
+              no-data-text="Nema podataka"
+              item-value="id"
+              item-text="naziv"
+              outlined
+              class="px-4 pt-4"
+              >
+              </v-select>
 
             <v-list
                 nav
@@ -39,18 +50,16 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 
 export default {
     name: 'NavigationDrawer',
     data: () => ({
+      databases: [
+        { id: 0, naziv: 'Postgres'},
+        { id: 1, naziv: 'MongoDB'},
+      ],
       navigationItems: [
-        /*
-        {
-          icon: 'mdi-account',
-          title: 'Moj račun',
-          to: "/admin/moj-racun"
-        },
-        */
         {
           icon: 'mdi-image-filter-hdr',
           title: 'Planine',
@@ -82,12 +91,21 @@ export default {
       ]
     }),
     computed: {
+
       drawer: {
         get () {
           return this.$store.getters['backoffice/drawer']
         },
         set (val) {
           this.$store.dispatch('backoffice/setDrawer', val)
+        },
+      },
+      selectedDatabase: {
+        get () {
+          return this.$store.getters['backoffice/selectedDatabase']
+        },
+        set (val) {
+          this.$store.dispatch('backoffice/setSelectedDatabase', val)
         },
       },
     },

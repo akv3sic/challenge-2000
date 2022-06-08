@@ -2,9 +2,10 @@ import Vue from "vue";
 import axios from "axios";
 import VueAxios from "vue-axios";
 
-Vue.use(VueAxios, axios)
 
+Vue.use(VueAxios, axios)
 //let token = 'Bearer ' + window.localStorage.getItem('token');
+
 
 const httpClient = Vue.axios.create({
     baseURL: process.env.VUE_APP_BASE_URL,
@@ -15,5 +16,6 @@ const httpClient = Vue.axios.create({
 });
 
 //httpClient.defaults.headers.common['Authorization'] = token || ""
+
 
 export default httpClient;

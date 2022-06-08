@@ -1,5 +1,5 @@
 <template>
-    <v-container>
+    <v-container class="pa-0">
         <v-row>
             <v-col>
                 <span class="text-h6">Dodaj novo postignuće</span>
@@ -65,6 +65,7 @@ export default {
                     console.log("Greška pri dodavanju novog postignuća: " + err)
                 })
             }
+            this.setAddNewActivated(false)
             setTimeout(()=>{this.$store.dispatch('users/fetchUser', this.$route.params.id, {root: true})}, 500)
         },
     }

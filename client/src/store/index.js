@@ -10,8 +10,11 @@ import crudUniversalHelper from './modules/crudUniversalHelper'
 Vue.use(Vuex);
 
 
-export default new Vuex.Store({
-  modules: {
-      backoffice, mountains, states, users, crudUniversalHelper
-  }
-});
+const store = new Vuex.Store({modules: {
+  backoffice, mountains, states, users, crudUniversalHelper
+}})
+
+console.log('check if store exists', store)
+//console.log('check if getter exists', store.get)
+
+export default store
