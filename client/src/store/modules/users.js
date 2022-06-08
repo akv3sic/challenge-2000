@@ -1,4 +1,5 @@
 import httpClient from '@/common/httpClient'
+import Swal from 'sweetalert2'
 
 // initial state
 const state = () => ({
@@ -60,13 +61,14 @@ const actions = {
                   console.log(JSON.stringify(response.data))
                   // call mutation
                   commit('REQUEST_SUCCESS')
-                  commit('ADD_USER_SUCCESS')
+                  commit('CREATE_SUCCESS')
                   resolve(response)
-              }
+              }   
           })
           .catch(err => {
               console.log(err)
               reject(err)
+              commit('CREATE_FAIL')
           })
       })
   },
@@ -90,21 +92,33 @@ const mutations = {
     REQUEST_SUCCESS (state){
         state.isLoading = false
     },
-    ADD_USER_SUCCESS() {
-        /* success alert */
-        Swal.fire({
-            width: 400,
-            position: 'top-end',
-            icon: 'success',
-            title: 'Korisnik uspješno dodan.',
-            showConfirmButton: false,
-            timer: 1600
-        })
-        /*********************************/
-    },
     SET_ADD_NEW_ACTIVATED (state, payload) {
       state.addNewActivated = payload
     },
+    CREATE_SUCCESS() {
+      /* success alert */
+    Swal.fire({
+        width: 400,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Uspješno dodano.',
+        showConfirmButton: false,
+        timer: 1500
+    })
+    /*********************************/
+  },
+  CREATE_FAIL() {
+      /* FAIL alert */
+    Swal.fire({
+        width: 400,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Izgleda da je došlo do greške.',
+        showConfirmButton: false,
+        timer: 1500
+    })
+    /*********************************/
+  }
 }
 
 export default {

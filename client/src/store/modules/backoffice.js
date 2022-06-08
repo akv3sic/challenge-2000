@@ -42,7 +42,7 @@ const state = () => ({
 
         else {
             console.log("mongo db")
-            httpClient.defaults.baseURL = "http://127.0.0.1:9595/mongodb/"
+            httpClient.defaults.baseURL = "http://127.0.0.1:9595/mongo/"
         }
           
 

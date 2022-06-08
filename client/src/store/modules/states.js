@@ -1,4 +1,5 @@
 import httpClient from '@/common/httpClient'
+import Swal from 'sweetalert2'
 
 // initial state
 const state = () => ({
@@ -36,12 +37,12 @@ const actions = {
           httpClient.post("/drzave", payload)
           .then(response => {
               // check response status
-              if(response.status === 200) { // OK
+              if(response.status === 201) { // success
                   // assign response data
                   const msg = response.data.message
                   console.log(msg)
                   // call mutation
-                  //commit('PUBLISH_SUCCESS')
+                  commit('CREATE_SUCCESS')
                   resolve(response)
               }
           })
@@ -61,6 +62,18 @@ const mutations = {
     FETCH_END(state, payload) {
       state.states = payload
       state.isLoading = false
+    },
+    CREATE_SUCCESS() {
+        /* success alert */
+      Swal.fire({
+          width: 400,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Država uspješno dodana.',
+          showConfirmButton: false,
+          timer: 1500
+      })
+      /*********************************/
     }
 }
 
