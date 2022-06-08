@@ -52,20 +52,39 @@
         <v-card
             v-for="mountain in mountains"
             :key="mountain.id"
-            class="pa-1 my-2 list-item"
+            class="pa-1 my-2"
             outlined
-            :to="'planina/' + mountain.id"
         >
             <v-row>
             <v-col cols="3" md="3">
-                {{ mountain.naziv}}
+                <span v-if="editedId != mountain.id">
+                    {{ mountain.naziv}}
+                </span>
+                <v-text-field
+                    v-else
+                    v-model="mountain.naziv"
+                    class="pa-0"
+                >
+                </v-text-field>
             </v-col>
             <v-col cols="5" md="3">
                 <v-row class="hidden-md-and-up"> 
                     <v-col class="text-caption">Država</v-col>
                 </v-row>
-                {{ mountain.drzava}}
-            </v-col><v-col cols="3" md="5">
+                <span v-if="editedId != mountain.id">
+                    {{ mountain.drzava}}
+                </span>
+                <v-select
+                    v-else
+                    v-model="novaPlanina.drzava_id"
+                    :items="states"
+                    item-text="naziv"
+                    item-value="id"
+                    label="Država"
+                    class="pa-0"
+                ></v-select>
+            </v-col>
+            <v-col cols="3" md="4">
                 <v-row class="hidden-md-and-up"> 
                     <v-col class="text-caption">Visina</v-col>
                 </v-row>
@@ -85,12 +104,21 @@
                 </span>
             </v-col>
 
-            <v-col  cols="12" md="1">
-                <v-icon @click="deleteMountain(mountain.id, mountain.ime, mountain.url_slike)">mdi-delete</v-icon>
-                <router-link class="rm-underline" :to="'/admin/uredi-planinu/' + mountain.id + '/' + mountain.slug">
-                    <v-icon class="ml-1">mdi-pencil</v-icon>
-                </router-link>
+            <v-col  cols="12" md="2">
+                <div v-if="editedId != mountain.id">
+                    <router-link class="rm-underline" :to="'planina/' + mountain.id">
+                        <v-icon class="ml-1">mdi-book-open</v-icon>
+                    </router-link>
+                    <v-icon @click="deleteMountain(mountain.id, mountain.naziv)">mdi-delete</v-icon>
+                    <v-icon class="ml-1" @click="activateEdit(mountain.id)">mdi-pencil</v-icon>
+                </div>
+                <div v-else>
+                    <v-icon class="ml-1" @click="updateMountain" color="green">mdi-check</v-icon>
+                    <v-icon class="ml-1" @click="activateEdit(null)" color="red">mdi-close</v-icon>
+                </div>
+                
             </v-col>
+
             </v-row>
         </v-card>
         <!-- ************************** -->
@@ -108,6 +136,7 @@ export default {
            naziv: "",
            drzava_id: ""
        },
+       editedId: null,
        addNewActivated: false
     }),
     mounted() {
@@ -141,7 +170,7 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
                 this.$store
-                .dispatch('mountain/deleteMountain', mountainId, {root: true})
+                .dispatch('crudUniversalHelper/deleteItem', {id: mountainId, url: 'planine'}, {root: true})
                 this.fetchMountains()
                 }
             })
@@ -161,6 +190,29 @@ export default {
                 })
             this.addNewActivated = false
             setTimeout(()=>{this.fetchMountains()}, 700)
+        },
+        activateEdit(id) {
+            console.log("uredi planinu id " + id)
+            this.editedId = id
+            this.fetchStates()
+        },
+        updateMountain(){
+            this.novaPlanina.naziv = this.mountains.find(x => x.id === this.editedId).naziv;
+            console.log(JSON.stringify(this.novaPlanina) + "idemo")
+
+            this.$store
+                .dispatch('crudUniversalHelper/updateItem',
+                        {payload: this.novaPlanina, url: 'planine/' + this.editedId},
+                        {root: true})
+                .catch( err => {
+                    console.log(err)
+                })
+    
+            this.editedId = null
+            setTimeout(()=> {
+                this.fetchMountains()
+            }, 400)
+            
         }
     },
     computed: {

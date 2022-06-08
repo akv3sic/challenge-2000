@@ -50,7 +50,46 @@ const actions = {
               reject(err)
           })
       })
-  },
+    },
+    updateItem( {commit}, {payload, url}) {
+      return new Promise((resolve, reject) => {
+          httpClient.put(url, payload)
+          .then(response => {
+              // check response status
+              if(response.status === 201 || 204) { // success
+                  // assign response data
+                  const msg = response.data.message
+                  console.log(msg)
+                  // call mutation
+                  //commit('PUBLISH_SUCCESS')
+                  resolve(response)
+              }
+          })
+          .catch(err => {
+              console.log(err)
+              reject(err)
+          })
+      })
+    },
+    deleteItem( {commit}, {id, url}) {
+      return new Promise((resolve, reject) => {
+          httpClient.delete(url + '/' + id)
+          .then(response => {
+              // check response status
+              if(response.status === 200) { // OK
+                  // assign response data
+                  const msg = response.data.message
+                  console.log(msg)
+                  // call mutation
+                  resolve(response)
+              }
+          })
+          .catch(err => {
+              console.log(err)
+              reject(err)
+          })
+      })
+},
 }
 
 // mutations

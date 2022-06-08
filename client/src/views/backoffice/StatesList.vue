@@ -44,12 +44,20 @@
         <v-card
             v-for="state in states"
             :key="state.id"
-            class="pa-1 my-2 list-item"
+            class="pa-1 my-2"
             outlined
         >
             <v-row>
             <v-col cols="3" md="4">
-                {{ state.naziv}}
+
+                <span v-if="editedDrzava.id != state.id">{{ state.naziv}}</span> 
+
+                <v-text-field
+                    v-else
+                    v-model="state.naziv"
+                    class="pa-0"
+                >
+                </v-text-field>
             </v-col>
             <v-col cols="5" md="3">
                 <v-row class="hidden-md-and-up"> 
@@ -64,11 +72,17 @@
             </v-col>
 
             <v-col md="1">
-                <v-icon @click="deleteState(state.id, state.ime, state.url_slike)">mdi-delete</v-icon>
-                <router-link class="rm-underline" :to="'/admin/uredi-planinu/' + state.id + '/' + state.slug">
-                    <v-icon class="ml-1">mdi-pencil</v-icon>
-                </router-link>
+                <div  v-if="editedDrzava.id != state.id">
+                    <v-icon @click="deleteState(state.id, state.naziv)">mdi-delete</v-icon>
+                    <v-icon class="ml-1" @click="activateEdit(state.id)">mdi-pencil</v-icon>
+                </div>
+
+                <div v-else>
+                    <v-icon class="ml-1" @click="updateState" color="green">mdi-check</v-icon>
+                    <v-icon class="ml-1" @click="activateEdit(null)" color="red">mdi-close</v-icon>
+                </div>
             </v-col>
+
             </v-row>
         </v-card>
         <!-- ************************** -->
@@ -83,9 +97,13 @@ export default {
     name: 'statesList',
     data: () => ({
        novaDrzava: {
-           naziv: ""
+           naziv: "",
        },
-       addNewActivated: false
+       editedDrzava: {
+           naziv: "",
+           id: ""
+       },
+       addNewActivated: false,
     }),
     mounted() {
         this.fetchStates();
@@ -114,8 +132,12 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
                 this.$store
-                .dispatch('states/deleteState', stateId, {root: true})
-                this.fetchstates()
+                    .dispatch('crudUniversalHelper/deleteItem', {id: stateId, url: 'drzave'}, {root: true})
+                setTimeout(() => {
+                    this.fetchStates()
+                    console.log("ma uslo u timeout haha")
+                }, 400)
+                
                 }
             })
         /*********************************/
@@ -123,6 +145,10 @@ export default {
         activateAddNew() {
             console.log("add new activated")
             this.addNewActivated = true
+        },
+        activateEdit(id) {
+            console.log("uredi drzavu id " + id)
+            this.editedDrzava.id = id
         },
         addNewState() {
             this.$store
@@ -133,6 +159,20 @@ export default {
             this.addNewActivated = false
             setTimeout(()=>{this.fetchStates()}, 700)
             
+        },
+        updateState(){
+            this.editedDrzava.naziv = this.states.find(x => x.id === this.editedDrzava.id).naziv;
+            console.log(JSON.stringify(this.editedDrzava) + "idemo")
+
+            this.$store
+                .dispatch('crudUniversalHelper/updateItem',
+                        {payload: {'naziv': this.editedDrzava.naziv}, url: 'drzave/' + this.editedDrzava.id},
+                        {root: true})
+                .catch( err => {
+                    console.log(err)
+                })
+
+            this.editedDrzava.id = null
         }
     },
     computed: {

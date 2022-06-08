@@ -32,9 +32,8 @@
         <v-card
             v-for="user in users"
             :key="user.id"
-            class="pa-1 my-2 list-item"
+            class="pa-1 my-2"
             outlined
-            :to="'korisnik/' + user.id"
         >
             <v-row>
             <v-col cols="3" md="3">
@@ -45,16 +44,19 @@
                     <v-col class="text-caption">E-mail</v-col>
                 </v-row>
                 {{ user.email}}
-            </v-col><v-col cols="3" md="5">
+            </v-col><v-col cols="3" md="4">
                 <v-row class="hidden-md-and-up"> 
                     <v-col class="text-caption">Uloga</v-col>
                 </v-row>
                 {{ user.rola}}
             </v-col>
 
-            <v-col  cols="12" md="1">
+            <v-col  cols="12" md="2">
+                <router-link class="rm-underline" :to="'korisnik/' + user.id">
+                    <v-icon class="ml-1">mdi-account-details</v-icon>
+                </router-link>
                 <v-icon @click="deleteUser(user.id, user.ime, user.prezime)">mdi-delete</v-icon>
-                <router-link class="rm-underline" :to="'/admin/uredi-planinu/' + user.id + '/'">
+                <router-link class="rm-underline" :to="'/admin/uredi-korisnika/' + user.id + '/'">
                     <v-icon class="ml-1">mdi-pencil</v-icon>
                 </router-link>
             </v-col>
@@ -86,7 +88,6 @@ export default {
             Swal.fire({
                 title: 'Sigurno želite izbrisati ovog korisnika?',
                 text: userName + userSurname,
-                imageHeight: 135,
                 showDenyButton: true,
                 confirmButtonText: `Da, izbriši`,
                 confirmButtonColor: '#052949',
@@ -99,7 +100,7 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
                 this.$store
-                .dispatch('user/deleteUser', userId, {root: true})
+                .dispatch('crudUniversalHelper/deleteItem', {id: userId, url: 'korisnici'}, {root: true})
                 this.fetchUsers()
                 }
             })
