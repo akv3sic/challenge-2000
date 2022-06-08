@@ -19,12 +19,13 @@ class Drzave(Resource):
         return{"status":200, "message":"Success", "drzave":drzave}, 200
 
     def post(self, baza):
+        data= _drzava_parser.parse_args()
+        naziv=data["naziv"]
         if baza=="postgres":
-            data= _drzava_parser.parse_args()
-            naziv=data["naziv"]
+            
             resp=post_drzave_pg(naziv)
         elif baza == "mongo":
-            pass
+            resp = post_drzave_mg(naziv)
         else:
             return{"status":400, "message":"Bad Request"}, 400
         return resp, 201

@@ -1,7 +1,22 @@
 import psycopg2
+import pymongo
+from mongoCl import dr
 from db import host, database,user,password, port
 
 
+def post_drzave_mg(naziv):
+    content = {"naziv": naziv, "active":"True", "planine":[]}
+    dr.insert_one(content)
+    return {"message":"Success", "status":201}
+
+def get_drzave_mg():
+    pass
+
+def put_drzave_mg():
+    pass
+
+def del_drzave():
+    pass
 
 
     

@@ -3,7 +3,7 @@ from flask import request
 from models.planine import *
 
 _planina_reqparse= reqparse.RequestParser()
-_planina_reqparse.add_argument("drzava_id", type=int)
+_planina_reqparse.add_argument("drzava_id")
 _planina_reqparse.add_argument("naziv", type=str)
 
 class Planine(Resource):
@@ -25,7 +25,7 @@ class Planine(Resource):
         if baza == "postgres":
             resp=post_planine_pg(drzava_id, naziv)
         elif baza == "mongo":
-            pass
+            resp=post_planine_mg(drzava_id, naziv)
         else:
             return{"status":400, "message":"Bad Request"}, 400
         return resp, 201
