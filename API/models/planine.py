@@ -1,5 +1,20 @@
 import psycopg2
+import pymongo
+from bson.objectid import ObjectId
+from mongoCl import dr
 from db import host, database,user,password, port
+
+def post_planine_mg(drzava_id, naziv):
+    
+    drzava= dr.find_one({"_id":ObjectId(drzava_id)} )
+    planina={"_id":ObjectId(), "naziv":naziv, "active":"True", "vrhovi":[]}
+    pl= drzava["planine"]
+    print(pl)
+    pl.append(planina)
+    print(pl)
+    dr.update_one({"_id":ObjectId(drzava_id)}, {"$set":{"planine":pl}})
+    return {"message":"Success", "status":201}
+
 
 def get_planine_pg():
         conn=psycopg2.connect(
@@ -73,7 +88,7 @@ def get_planina_by_id_pg(id):
         response["vrhovi"]=[]
         return response
     
-    
+ 
 
 def post_planine_pg(drzava_id, naziv):
     conn=psycopg2.connect(

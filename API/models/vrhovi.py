@@ -1,4 +1,7 @@
 import psycopg2
+import pymongo
+from bson.objectid import ObjectId
+from mongoCl import dr
 from db import *
 
 def get_vrh_by_id_pg(id):
@@ -24,6 +27,23 @@ def get_vrh_by_id_pg(id):
     
     response["staze"]=st
     return response
+
+def post_vrh_mg(planina_id, naziv, nadmorska_visina):
+
+    planina = dr.find_one({"planine":{"$elemMatch":{"_id":ObjectId(planina_id)}}})
+    print(planina)
+   
+    vrh ={"_id":ObjectId(), "active":"True", "naziv":naziv, "nadmorska_visina":nadmorska_visina}
+    pl=planina["planine"]
+    for row in pl:
+        print(row)
+        if row["_id"]==ObjectId(planina_id):
+            row["vrhovi"].append(vrh)
+            break
+
+    
+    dr.update_one({"planine._id":ObjectId(planina_id)}, {"$set":{"planine":pl}})
+    return {"message":"Success", "status":201}
 
 def post_vrh_pg(planina_id, naziv, nadmorska_visina):
     conn=psycopg2.connect(

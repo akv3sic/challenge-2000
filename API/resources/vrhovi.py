@@ -2,7 +2,7 @@ from flask_restful import Resource, reqparse
 from models.vrhovi import *
 
 _vrh_reqparse=reqparse.RequestParser()
-_vrh_reqparse.add_argument("planina_id", type=int)
+_vrh_reqparse.add_argument("planina_id")
 _vrh_reqparse.add_argument("naziv", type=str)
 _vrh_reqparse.add_argument("nadmorska_visina", type=int)
 
@@ -52,7 +52,7 @@ class Vrhovi(Resource):
         if baza == "postgres":
             resp=post_vrh_pg(planina_id, naziv, nadmorska_visina)
         elif baza == "mongo":
-            pass
+            resp=post_vrh_mg(planina_id, naziv, nadmorska_visina)
         else:
             return {"status":400, "message":"Bad Request"}, 400   
         return resp, 201
