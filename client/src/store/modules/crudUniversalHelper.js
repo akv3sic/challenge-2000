@@ -1,4 +1,5 @@
 import httpClient from '@/common/httpClient'
+import Swal from 'sweetalert2'
 
 // initial state
 const state = () => ({
@@ -36,18 +37,19 @@ const actions = {
           httpClient.post(url, payload)
           .then(response => {
               // check response status
-              if(response.status === 200) { // OK
+              if(response.status === 200 || 201) { // OK
                   // assign response data
                   const msg = response.data.message
                   console.log(msg)
                   // call mutation
-                  //commit('PUBLISH_SUCCESS')
+                  commit('CREATE_SUCCESS')
                   resolve(response)
-              }
+              } 
           })
           .catch(err => {
               console.log(err)
               reject(err)
+              commit('FAIL')
           })
       })
     },
@@ -61,7 +63,7 @@ const actions = {
                   const msg = response.data.message
                   console.log(msg)
                   // call mutation
-                  //commit('PUBLISH_SUCCESS')
+                  commit('UPDATE_SUCCESS')
                   resolve(response)
               }
           })
@@ -87,6 +89,7 @@ const actions = {
           .catch(err => {
               console.log(err)
               reject(err)
+              commit('FAIL')
           })
       })
 },
@@ -100,6 +103,42 @@ const mutations = {
     FETCH_END(state, payload) {
       state.states = payload
       state.isLoading = false
+    },
+    CREATE_SUCCESS() {
+        /* success alert */
+      Swal.fire({
+          width: 400,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Uspješno dodano.',
+          showConfirmButton: false,
+          timer: 1500
+      })
+      /*********************************/
+    },
+    UPDATE_SUCCESS() {
+        /* success alert */
+      Swal.fire({
+          width: 400,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Promjene spremljene.',
+          showConfirmButton: false,
+          timer: 1500
+      })
+      /*********************************/
+    },
+    FAIL() {
+        /* FAIL alert */
+      Swal.fire({
+          width: 400,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Izgleda da je došlo do greške.',
+          showConfirmButton: false,
+          timer: 1500
+      })
+      /*********************************/
     }
 }
 
