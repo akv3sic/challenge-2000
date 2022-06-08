@@ -10,7 +10,7 @@ def get_planine_pg():
             port=port
         )
         cur= conn.cursor()
-        cur.execute("select d.naziv , pl.naziv, pl.id, v.naziv, v.nadmorska_visina from sbp.drzave as d inner join sbp.planine as pl on d.id=pl.drzava_id inner join sbp.vrhovi as v on pl.id=v.planina_id where v.nadmorska_visina=(SELECT MAX(v2.nadmorska_visina) FROM sbp.vrhovi as v2 where v2.planina_id=pl.id and v.active='True') and pl.active='True' and d.active ='True' and v.active='True';")
+        cur.execute("select d.naziv , pl.naziv, pl.id, v.naziv, v.nadmorska_visina from sbp.drzave as d inner join sbp.planine as pl on d.id=pl.drzava_id inner join sbp.vrhovi as v on pl.id=v.planina_id where v.nadmorska_visina=(SELECT v2.nadmorska_visina FROM sbp.vrhovi as v2 where v2.planina_id=pl.id and v.active='True' order  by v2.nadmorska_visina DESC limit 1) and pl.active='True' and d.active ='True' and v.active='True';")
         planine = cur.fetchall()
         cur.execute("select d.naziv , pl.naziv, pl.id from sbp.drzave as d inner join sbp.planine as pl on d.id=pl.drzava_id where d.active = 'True' and pl.active='True';")
         pl_bez_vrhova=cur.fetchall()
