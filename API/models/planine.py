@@ -73,6 +73,7 @@ def get_planine_pg():
         return response
 
 def get_planina_by_id_mg(id):
+    maxV = None
     drzave= list(dr.find({"planine":{"$elemMatch":{"_id":ObjectId(id)}}}))
     drzave=drzave[0]
     drzava=drzave["naziv"]
