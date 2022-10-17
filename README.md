@@ -1,7 +1,7 @@
 # School project (Database system course)
 - Frontend: Vue.js
 - Backend: Flask REST API
-- Database: PostgreeSQL([[Database diagram here](https://drawsql.app/teams/-b/diagrams/challenge-2000-1/embed)) & MongoDB
+- Database: PostgreeSQL([Database diagram here](https://drawsql.app/teams/-b/diagrams/challenge-2000-1/embed)) & MongoDB
 
 
 The application is designed as a back-office web application. The topic is a mountaineering challenge.
